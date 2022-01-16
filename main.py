@@ -41,12 +41,10 @@ def main(i):
         while board.get_board_data_count() < 250: 
             time.sleep(0.005)
         data = board.get_current_board_data(250)
-
         
         eegdf = pd.DataFrame(np.transpose(data[eeg_channels]))
         eegdf_col_names = ["ch1", "ch2", "ch3", "ch4"]
         eegdf.columns = eegdf_col_names
-
         
         timedf = pd.DataFrame(np.transpose(data[timestamp]))
 
@@ -75,12 +73,10 @@ def main(i):
                 DataFilter.perform_bandpass(data[channel], sampling_rate, 21.0, 20.0, 4,
                                             FilterTypes.BESSEL.value, 0)  # bandpass 11 - 31
 
-        # Brainflow ML Model
         bands = DataFilter.get_avg_band_powers(
             data, eeg_channels, sampling_rate, True)
         feature_vector = np.concatenate((bands[0], bands[1]))
 
-        # calc concentration
         concentration_params = BrainFlowModelParams(
             BrainFlowMetrics.CONCENTRATION.value, BrainFlowClassifiers.KNN.value)
         concentration = MLModel(concentration_params)
@@ -89,7 +85,6 @@ def main(i):
         concentrated_measure = concentration.predict(feature_vector)
         concentration.release()
 
-        # calc relaxation
         relaxation_params = BrainFlowModelParams(
             BrainFlowMetrics.RELAXATION.value, BrainFlowClassifiers.KNN.value)
         relaxation = MLModel(relaxation_params)
@@ -102,10 +97,9 @@ def main(i):
         eeg2.extend(eegdf.iloc[:, 1].values) 
         eeg3.extend(eegdf.iloc[:, 2].values) 
         eeg4.extend(eegdf.iloc[:, 3].values)
-        timex.extend(timedf.iloc[:, 0].values)  # timestamps
+        timex.extend(timedf.iloc[:, 0].values) 
 
         plt.cla()
-        #plotting eeg data
         plt.plot(timex, eeg1, label="Channel 1", color="red")
         plt.plot(timex, eeg2, label="Channel 2", color="blue")
         plt.plot(timex, eeg3, label="Channel 3", color="orange")
