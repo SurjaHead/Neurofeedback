@@ -13,7 +13,6 @@ from brainflow.ml_model import MLModel, BrainFlowMetrics, BrainFlowClassifiers, 
 
 def main(i):
     BoardShim.enable_dev_board_logger()
-    #BoardShim.disable_board_logger()
     params = BrainFlowInputParams()
     params.board_id = 1
     board_id = 1
@@ -31,32 +30,30 @@ def main(i):
     plt.xlabel("\nTime", fontsize=10)
     keep_alive = True
 
-    eeg1 = [] #lists to store eeg data
+    eeg1 = [] 
     eeg2 = []
     eeg3 = []
     eeg4 = []
-    timex = [] #list to store timestamp
+    timex = [] 
 
     while keep_alive == True:
 
-        while board.get_board_data_count() < 250: #ensures that all data shape is the same
+        while board.get_board_data_count() < 250: 
             time.sleep(0.005)
         data = board.get_current_board_data(250)
 
-        # creating a dataframe of the eeg data to extract eeg values later
+        
         eegdf = pd.DataFrame(np.transpose(data[eeg_channels]))
         eegdf_col_names = ["ch1", "ch2", "ch3", "ch4"]
         eegdf.columns = eegdf_col_names
 
-        # to keep it simple, making another dataframe for the timestamps to access later
+        
         timedf = pd.DataFrame(np.transpose(data[timestamp]))
 
-        print("EEG Dataframe") #easy way to check what data is being streamed and if program is working
-        print(eegdf)           #isn't neccesary.
+        print("EEG Dataframe") 
+        print(eegdf)           
 
         for count, channel in enumerate(eeg_channels):
-            # filters work in-place
-            # Check Brainflow docs for more filters
             if count == 0:
                 DataFilter.perform_bandstop(data[channel], sampling_rate, 60.0, 4.0, 4,
                                             FilterTypes.BUTTERWORTH.value, 0)  # bandstop 58 - 62
@@ -101,10 +98,9 @@ def main(i):
         relaxed_measure = relaxation.predict(feature_vector)
         relaxation.release()
       
-        #appending eeg data to lists 
-        eeg1.extend(eegdf.iloc[:, 0].values) # I am using OpenBCI Ganglion board, so I only have four channels.
-        eeg2.extend(eegdf.iloc[:, 1].values) # If you have a different board, you should be able to copy paste
-        eeg3.extend(eegdf.iloc[:, 2].values) # these commands for more channels.
+        eeg1.extend(eegdf.iloc[:, 0].values) 
+        eeg2.extend(eegdf.iloc[:, 1].values) 
+        eeg3.extend(eegdf.iloc[:, 2].values) 
         eeg4.extend(eegdf.iloc[:, 3].values)
         timex.extend(timedf.iloc[:, 0].values)  # timestamps
 
@@ -115,9 +111,9 @@ def main(i):
         plt.plot(timex, eeg3, label="Channel 3", color="orange")
         plt.plot(timex, eeg4, label="Channel 4", color="purple")
         plt.tight_layout()
-        keep_alive = False #resetting stream so that matplotlib can plot data
+        keep_alive = False 
         if concentrated_measure > 0.5:
-            print("GOOD KEEP CONCENTRATING") #a program screaming at you to concentrate should do the trick :)
+            print("GOOD KEEP CONCENTRATING") 
         else:
             print("CONCENTRATE MORE")
         if relaxed_measure > 0.5:
@@ -130,7 +126,7 @@ def main(i):
     board.stop_stream()
     board.release_session()
 
-ani = FuncAnimation(plt.gcf(), main, interval=1000) #this essentially calls the function several times until keyboard interrupt
+ani = FuncAnimation(plt.gcf(), main, interval=1000) 
 plt.tight_layout()
 plt.autoscale(enable=True, axis="y", tight=True)
 plt.show()
