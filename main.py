@@ -24,6 +24,7 @@ def main(i):
     
     board.prepare_session()
     board.start_stream()
+    
     style.use('fivethirtyeight')
     plt.title("Live EEG stream from Brainflow", fontsize=15)
     plt.ylabel("Data in millivolts", fontsize=15)
